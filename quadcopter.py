@@ -36,5 +36,5 @@ class Quadcopter(asyncore.dispatcher):
 			data = self.quad_sock.read()
 
 	def got_payload(self, payload):
-		pass
+		print 'got payload %s' % payload
 
