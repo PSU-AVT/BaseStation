@@ -2,14 +2,14 @@ import asyncore
 
 import afproto
 
-def make_serial_nonblocking(self, s):
+def make_serial_nonblocking(s):
 	s.nonblocking()
 	s.setTimeout(0)
 	s.setWriteTimeout(0)
 
 class Quadcopter(asyncore.dispatcher):
 	def __init__(self, quad_sock=None):
-		asyncore.dispatcher.__init(self)	
+		asyncore.dispatcher.__init__(self)	
 		self.set_quad_socket(quad_sock)
 		self.out_buffer = ''
 		self.in_buffer = ''
@@ -23,14 +23,18 @@ class Quadcopter(asyncore.dispatcher):
 		return self.connected
 
 	def writable(self):
-		return self.connected and len(out_buffer) > 0
+		return self.connected and len(self.out_buffer) > 0
 
 	def handle_read(self):
 		data = self.quad_sock.read()
 		while data:
-			buff += data
-			if len(buff) > 3 and buff[-1] == afproto.end_byte and buff[-2] != afproto.escape_byte:
-				payload, buff = afproto.extract_payload(buff)
+			self.in_buffer += data
+			if len(self.in_buffer) > 3 and self.in_buffer[-1] == chr(afproto.end_byte) and self.in_buffer[-2] != chr(afproto.escape_byte):
+				print 'extracting ',
+				for ch in self.in_buffer:
+					print '%x' % ord(ch),
+				print
+				payload, self.in_buffer = afproto.extract_payload(self.in_buffer)
 				if payload:
 					self.got_payload(payload)
 			data = self.quad_sock.read()

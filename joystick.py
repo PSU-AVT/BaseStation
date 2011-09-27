@@ -11,13 +11,16 @@ class JoystickEvent(object):
 
 class Joystick(asyncore.dispatcher):
 	def __init__(self, path=None):
-		asyncore.dispatcher(self)
+		asyncore.dispatcher.__init__(self)
 		if path != None:
 			self.open(path)
 
-	def open(self, path):
+	def handle_event(self, event):
+		pass
+
+	def open_path(self, path):
 		self.fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
-		self.set_socket(self.fd)
+		self.set_socket(os.fdopen(self.fd))
 		self.connected = True
 
 	def readable(self):
@@ -32,6 +35,7 @@ class Joystick(asyncore.dispatcher):
 		self.handle_event(event)
 
 	def handle_event(self, event):
+		print 'joystick event'
 		pass
 
 if __name__=='__main__':
