@@ -35,15 +35,18 @@ def extract_payload(data):
 
 	# Not a full message
 	if len(data) < start_ndx + 4:
+		print 'Not full messsage'
 		return None, data[start_ndx:]
 	length, crc = struct.unpack('BB', data[start_ndx+1:start_ndx+3])
 
-	print length, crc
-
 	# Check end byte
 	end_ndx = start_ndx + length + 3
-	if data[end_ndx] != chr(end_byte) or data[end_ndx-1] == chr(escape_byte):
-		return None, data[start_ndx:]
+	try:
+		if data[end_ndx] != chr(end_byte) or data[end_ndx-1] == chr(escape_byte):
+			return None, data[start_ndx+1:]
+	except IndexError:
+		print 'Invalid msg'
+		return '', data[start_ndx+1:]
 
 	payload = data[start_ndx+3:end_ndx]
 
@@ -55,6 +58,7 @@ def extract_payload(data):
 	if crc == crcer.digest(payload):
 		return payload, data[end_ndx+1:]
 
+	print 'No payload'
 	return None, data[end_ndx+1:]
 
 if __name__=='__main__':

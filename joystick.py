@@ -16,7 +16,7 @@ class Joystick(asyncore.dispatcher):
 			self.open(path)
 
 	def handle_event(self, event):
-		pass
+		print 'Axis %d %d' % (event.number, event.value)
 
 	def open_path(self, path):
 		self.fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
@@ -33,10 +33,6 @@ class Joystick(asyncore.dispatcher):
 		data = os.read(self.fd, 8)
 		event = JoystickEvent(*struct.unpack('IhBB', data))
 		self.handle_event(event)
-
-	def handle_event(self, event):
-		print 'joystick event'
-		pass
 
 if __name__=='__main__':
 	pass

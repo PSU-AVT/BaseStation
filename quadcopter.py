@@ -19,6 +19,9 @@ class Quadcopter(asyncore.dispatcher):
 		self.connected = True
 		self.quad_sock = quad_sock
 
+	def send_payload(self, msg):
+		self.out_buffer += afproto.serialize_payload(msg)
+
 	def readable(self):
 		return self.connected
 
@@ -38,6 +41,10 @@ class Quadcopter(asyncore.dispatcher):
 				if payload:
 					self.got_payload(payload)
 			data = self.quad_sock.read()
+
+	def handle_write(self):
+		self.quad_sock.write(self.out_buffer)
+		self.out_buffer = ''
 
 	def got_payload(self, payload):
 		print 'got payload %s' % payload
