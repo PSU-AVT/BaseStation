@@ -1,10 +1,12 @@
 from PyQt4 import QtGui
 
 import attenuationwidget
+import connectionmanager
 
 class MainWindow(QtGui.QMainWindow):
 	def __init__(self):
 		super(MainWindow, self).__init__()
+		self.conn_mgr = connectionmanager.ConnectionManager()
 		self.initUi()
 
 	def initUi(self):
@@ -17,6 +19,7 @@ class MainWindow(QtGui.QMainWindow):
 
 		connectAction = QtGui.QAction('&Connect', self)
 		connectAction.setStatusTip('Connect to the quadcopter')
+		connectAction.triggered.connect(self.show_connect)
 		self.connectAction = connectAction
 
 		disconnectAction = QtGui.QAction('&Disconnect', self)
@@ -34,6 +37,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.setCentralWidget(self.gyro_widget)
 
 		self.on_disconnect()
+
+	def show_connect(self):
+		self.conn_mgr.do_connect('foo')
 
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")
