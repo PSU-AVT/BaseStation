@@ -2,6 +2,7 @@ from PyQt4 import QtGui
 
 import attenuationwidget
 import connectionmanager
+import connectdialog
 
 class MainWindow(QtGui.QMainWindow):
 	def __init__(self):
@@ -40,7 +41,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.on_disconnect()
 
 	def show_connect(self):
-		self.conn_mgr.do_connect('localhost')
+		cd = connectdialog.ConnectDialog()
+		if cd.exec_():
+			self.conn_mgr.do_connect(cd.hostname())
 
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")
