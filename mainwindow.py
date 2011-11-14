@@ -25,6 +25,7 @@ class MainWindow(QtGui.QMainWindow):
 
 		disconnectAction = QtGui.QAction('&Disconnect', self)
 		disconnectAction.setStatusTip('Disconnect from the quadcopter')
+		disconnectAction.triggered.connect(self.conn_mgr.do_disconnect)
 		self.disconnectAction = disconnectAction
 
 		menubar = self.menuBar()

@@ -33,11 +33,25 @@ class StatePublisher(UdpClient):
 	def __init__(self):
 		super(StatePublisher, self).__init__()
 		self.subscriptions = []
+		self.resub_timer = QtCore.QTimer(self)
+		self.resub_timer.setInterval(500)
+		self.resub_timer.setSingleShot(False)
+		self.resub_timer.timeout.connect(self.resub_timeout)
+		self.resub_timer.start()
 
 	def subscribeTo(prefix, persistent=True):
 		if persistent:
 			self.subscriptions.append(prefix)
 		self.sendData(prefix)
+
+	def resub_timeout(self):
+		data = ''
+		for sub in self.subscriptions:
+			data += sub + '\n'
+		# remove trailing \n
+		data = data[:-1]
+		self.sendData(data)
+		print 'resub'
 
 class ConnectionManager(QtCore.QObject):
 	def __init__(self):
@@ -54,7 +68,9 @@ class ConnectionManager(QtCore.QObject):
 		return self.is_connected
 
 	def do_connect(self, host):
+		self.is_connected = True
 		self.progress = QtGui.QProgressDialog("Connecting to quadcopter...", "Cancel", 0, 2)
+		self.progress.canceled.connect(self.do_disconnect)
 		self.progress.setVisible(True)
 		self.progress.setValue(0)
 
@@ -67,6 +83,13 @@ class ConnectionManager(QtCore.QObject):
 		# We dont have a verify state connection method
 		self.progress.setValue(1 + self.progress.value())
 		self.handle_progress_updated()
+
+	def do_disconnect(self):
+		if not self.connected():
+			return
+		del self.control_sock
+		del self.state_sock
+		self.is_connected = False
 
 	def got_controlgw_data(self):
 		datagram, host, port = self.control_sock.readDatagram(4096)
