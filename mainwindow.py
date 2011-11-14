@@ -35,9 +35,30 @@ class MainWindow(QtGui.QMainWindow):
 		fileMenu.addSeparator()
 		fileMenu.addAction(exitAction)
 
+
 		self.gyro_widget = attenuationwidget.AttenuationWidget()
 		self.gyro_widget.setInputAllowed(False)
-		self.setCentralWidget(self.gyro_widget)
+
+		self.atenn_setpoint_widget = attenuationwidget.AttenuationWidget()
+		self.atenn_setpoint_widget.setInputAllowed(True)
+
+		stateGroupBox = QtGui.QGroupBox("State")
+		sgbLayout = QtGui.QVBoxLayout()
+		sgbLayout.addWidget(self.gyro_widget)
+		stateGroupBox.setLayout(sgbLayout)
+
+		spGroupBox = QtGui.QGroupBox("Set Point")
+		spLayout = QtGui.QHBoxLayout()
+		spLayout.addWidget(self.atenn_setpoint_widget)
+		spGroupBox.setLayout(spLayout)
+
+		mainWidget = QtGui.QWidget()
+		vLayout = QtGui.QVBoxLayout()
+		vLayout.addWidget(stateGroupBox)
+		vLayout.addWidget(spGroupBox)
+		mainWidget.setLayout(vLayout)
+
+		self.setCentralWidget(mainWidget)
 
 		self.on_disconnect()
 
