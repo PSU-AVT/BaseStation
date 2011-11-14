@@ -51,7 +51,6 @@ class StatePublisher(UdpClient):
 		# remove trailing \n
 		data = data[:-1]
 		self.sendData(data)
-		print 'resub'
 
 class ConnectionManager(QtCore.QObject):
 	def __init__(self):
