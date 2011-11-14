@@ -3,6 +3,7 @@ from PyQt4 import QtGui
 import attenuationwidget
 import connectionmanager
 import connectdialog
+import joystick
 
 class MainWindow(QtGui.QMainWindow):
 	def __init__(self):
@@ -13,10 +14,13 @@ class MainWindow(QtGui.QMainWindow):
 	def initUi(self):
 		self.setWindowTitle('Quadcopter BaseStation')
 
-		exitAction = QtGui.QAction('&Exit', self)        
-		exitAction.setShortcut('Ctrl+Q')
-		exitAction.setStatusTip('Exit application')
-		exitAction.triggered.connect(QtGui.qApp.quit)
+		openJoysickAction = QtGui.QAction('Open Joystick', self)
+		openJoysickAction.setStatusTip('Open joystick to use for controlling quadcopter')
+		openJoysickAction.triggered.connect(self.show_open_joystick)
+
+		closeJoystickAction = QtGui.QAction('Close Joystick', self)
+		closeJoystickAction.setStatusTip('Close the currently open joystick')
+		closeJoystickAction.setEnabled(False)
 
 		connectAction = QtGui.QAction('&Connect', self)
 		connectAction.setStatusTip('Connect to the quadcopter')
@@ -28,13 +32,34 @@ class MainWindow(QtGui.QMainWindow):
 		disconnectAction.triggered.connect(self.conn_mgr.do_disconnect)
 		self.disconnectAction = disconnectAction
 
+		exitAction = QtGui.QAction('&Exit', self)        
+		exitAction.setShortcut('Ctrl+Q')
+		exitAction.setStatusTip('Exit application')
+		exitAction.triggered.connect(QtGui.qApp.quit)
+
+		quadcopterOnAction = QtGui.QAction('Turn On', self)
+		quadcopterOnAction.setStatusTip('Turn on the Quadcopter')
+		quadcopterOnAction.setEnabled(False)
+		self.quadcopterOnAction = quadcopterOnAction
+
+		quadcopterOffAction = QtGui.QAction('Turn Off', self)
+		quadcopterOffAction.setStatusTip('Turn off the Quadcopter')
+		quadcopterOffAction.setEnabled(False)
+		self.quadcopterOffAction = quadcopterOffAction
+
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu("&File")
+		fileMenu.addAction(openJoysickAction)
+		fileMenu.addAction(closeJoystickAction)
+		fileMenu.addSeparator()
 		fileMenu.addAction(connectAction)
 		fileMenu.addAction(disconnectAction)
 		fileMenu.addSeparator()
 		fileMenu.addAction(exitAction)
 
+		quadcopterMenu = menubar.addMenu('Quadcopter')
+		quadcopterMenu.addAction(quadcopterOnAction)
+		quadcopterMenu.addAction(quadcopterOffAction)
 
 		self.gyro_widget = attenuationwidget.AttenuationWidget()
 		self.gyro_widget.setInputAllowed(False)
@@ -66,6 +91,10 @@ class MainWindow(QtGui.QMainWindow):
 		cd = connectdialog.ConnectDialog()
 		if cd.exec_():
 			self.conn_mgr.do_connect(cd.hostname())
+
+	def show_open_joystick(self):
+		jd = joystick.OpenJoystickDialog()
+		jd.exec_()
 
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")
