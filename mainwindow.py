@@ -34,12 +34,13 @@ class MainWindow(QtGui.QMainWindow):
 		fileMenu.addAction(exitAction)
 
 		self.gyro_widget = attenuationwidget.AttenuationWidget()
+		self.gyro_widget.setInputAllowed(False)
 		self.setCentralWidget(self.gyro_widget)
 
 		self.on_disconnect()
 
 	def show_connect(self):
-		self.conn_mgr.do_connect('foo')
+		self.conn_mgr.do_connect('localhost')
 
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")
