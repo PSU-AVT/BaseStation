@@ -4,16 +4,16 @@ import attenuationwidget
 import connectionmanager
 import connectdialog
 import joystick
+import motors
 
 class MainWindow(QtGui.QMainWindow):
 	def __init__(self):
 		super(MainWindow, self).__init__()
 		self.conn_mgr = connectionmanager.ConnectionManager()
+		self.setupActions()
 		self.initUi()
 
-	def initUi(self):
-		self.setWindowTitle('Quadcopter BaseStation')
-
+	def setupActions(self):
 		openJoysickAction = QtGui.QAction('Open Joystick', self)
 		openJoysickAction.setStatusTip('Open joystick to use for controlling quadcopter')
 		openJoysickAction.triggered.connect(self.show_open_joystick)
@@ -46,7 +46,7 @@ class MainWindow(QtGui.QMainWindow):
 		quadcopterOffAction.setStatusTip('Turn off the Quadcopter')
 		quadcopterOffAction.setEnabled(False)
 		self.quadcopterOffAction = quadcopterOffAction
-
+		
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu("&File")
 		fileMenu.addAction(openJoysickAction)
@@ -60,6 +60,9 @@ class MainWindow(QtGui.QMainWindow):
 		quadcopterMenu = menubar.addMenu('Quadcopter')
 		quadcopterMenu.addAction(quadcopterOnAction)
 		quadcopterMenu.addAction(quadcopterOffAction)
+
+	def initUi(self):
+		self.setWindowTitle('Quadcopter BaseStation')
 
 		self.gyro_widget = attenuationwidget.AttenuationWidget()
 		self.gyro_widget.setInputAllowed(False)
@@ -77,11 +80,26 @@ class MainWindow(QtGui.QMainWindow):
 		spLayout.addWidget(self.atenn_setpoint_widget)
 		spGroupBox.setLayout(spLayout)
 
+		attenLayout = QtGui.QVBoxLayout()
+		attenLayout.addWidget(stateGroupBox)
+		attenLayout.addWidget(spGroupBox)
+
+		motorsGbLayout = QtGui.QVBoxLayout()
+		motorsGbLayout.addWidget(motors.MotorsWidget())
+
+		motorsGroupBox = QtGui.QGroupBox("Motors")
+		motorsGroupBox.setLayout(motorsGbLayout)
+
+		motorsVLayout = QtGui.QVBoxLayout()
+		motorsVLayout.addWidget(motorsGroupBox)
+		motorsVLayout.addStretch()
+
+		mainHLayout = QtGui.QHBoxLayout()
+		mainHLayout.addLayout(attenLayout)
+		mainHLayout.addLayout(motorsVLayout)
+
 		mainWidget = QtGui.QWidget()
-		vLayout = QtGui.QVBoxLayout()
-		vLayout.addWidget(stateGroupBox)
-		vLayout.addWidget(spGroupBox)
-		mainWidget.setLayout(vLayout)
+		mainWidget.setLayout(mainHLayout)
 
 		self.setCentralWidget(mainWidget)
 
