@@ -5,6 +5,7 @@ import connectionmanager
 import connectdialog
 import joystick
 import motors
+import gainswidget
 
 class MainWindow(QtGui.QMainWindow):
 	def __init__(self):
@@ -12,6 +13,8 @@ class MainWindow(QtGui.QMainWindow):
 		self.conn_mgr = connectionmanager.ConnectionManager()
 		self.setupActions()
 		self.initUi()
+		self.gainswidget = gainswidget.GainsWidget()
+		self.gainswidget.setVisible(True)
 
 	def setupActions(self):
 		openJoysickAction = QtGui.QAction('Open Joystick', self)
@@ -46,6 +49,9 @@ class MainWindow(QtGui.QMainWindow):
 		quadcopterOffAction.setStatusTip('Turn off the Quadcopter')
 		quadcopterOffAction.setEnabled(False)
 		self.quadcopterOffAction = quadcopterOffAction
+
+		showGainsAction = QtGui.QAction('Show Gains', self)
+		showGainsAction.setStatusTip('Show the control gains window')
 		
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu("&File")
@@ -60,6 +66,9 @@ class MainWindow(QtGui.QMainWindow):
 		quadcopterMenu = menubar.addMenu('Quadcopter')
 		quadcopterMenu.addAction(quadcopterOnAction)
 		quadcopterMenu.addAction(quadcopterOffAction)
+
+		viewMenu = menubar.addMenu('&View')
+		viewMenu.addAction(showGainsAction)
 
 	def initUi(self):
 		self.setWindowTitle('Quadcopter BaseStation')
@@ -90,13 +99,13 @@ class MainWindow(QtGui.QMainWindow):
 		motorsGroupBox = QtGui.QGroupBox("Motors")
 		motorsGroupBox.setLayout(motorsGbLayout)
 
-		motorsVLayout = QtGui.QVBoxLayout()
-		motorsVLayout.addWidget(motorsGroupBox)
-		motorsVLayout.addStretch()
+		rightVLayout = QtGui.QVBoxLayout()
+		rightVLayout.addWidget(motorsGroupBox)
+		rightVLayout.addStretch()
 
 		mainHLayout = QtGui.QHBoxLayout()
 		mainHLayout.addLayout(attenLayout)
-		mainHLayout.addLayout(motorsVLayout)
+		mainHLayout.addLayout(rightVLayout)
 
 		mainWidget = QtGui.QWidget()
 		mainWidget.setLayout(mainHLayout)
