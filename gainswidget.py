@@ -4,10 +4,10 @@ class StateWidget(QtGui.QWidget):
 	def __init__(self, desc):
 		super(StateWidget, self).__init__()
 		self.label = QtGui.QLabel(desc)
-		self.slider = QtGui.QSlider(2)
+		self.spin_box = QtGui.QSpinBox()
 		vlayout = QtGui.QVBoxLayout()
 		vlayout.addWidget(self.label)
-		vlayout.addWidget(self.slider)
+		vlayout.addWidget(self.spin_box)
 		self.setLayout(vlayout)
 
 class CompleteStateWidget(QtGui.QWidget):
@@ -40,7 +40,7 @@ class GainsWidget(QtGui.QWidget):
 		groupbox.setLayout(hlayout)
 		mainVLayout.addWidget(groupbox)
 
-		groupbox = QtGui.QGroupBox("d")
+		groupbox = QtGui.QGroupBox("D")
 		hlayout = QtGui.QHBoxLayout()
 		hlayout.addWidget(self.d_statewidget)
 		groupbox.setLayout(hlayout)

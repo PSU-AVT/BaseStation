@@ -13,8 +13,6 @@ class MainWindow(QtGui.QMainWindow):
 		self.conn_mgr = connectionmanager.ConnectionManager()
 		self.setupActions()
 		self.initUi()
-		self.gainswidget = gainswidget.GainsWidget()
-		self.gainswidget.setVisible(True)
 
 	def setupActions(self):
 		openJoysickAction = QtGui.QAction('Open Joystick', self)
@@ -114,6 +112,9 @@ class MainWindow(QtGui.QMainWindow):
 
 		self.on_disconnect()
 
+		self.gainswidget = gainswidget.GainsWidget()
+		self.gainswidget.setVisible(True)
+
 	def show_connect(self):
 		cd = connectdialog.ConnectDialog()
 		if cd.exec_():
@@ -126,7 +127,6 @@ class MainWindow(QtGui.QMainWindow):
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")
 		self.disconnectAction.setEnabled(False)
-
 
 	def on_connect(self):
 		self.statusBar().showMessage("Connected.")

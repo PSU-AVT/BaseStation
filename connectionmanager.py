@@ -1,5 +1,6 @@
 import time
 import struct
+import settings
 
 from PyQt4 import QtCore, QtGui, QtNetwork
 
@@ -9,25 +10,26 @@ class UdpClient(QtNetwork.QUdpSocket):
 	
 	def setDestination(self, hostname, port):
 		self.hostname = hostname
-		self.port = port
-		self.ha = QtNetwork.QHostAddress(self.hostname)
+		self.bind()
 		self.connectToHost(hostname, port)
 
 	def sendData(self, data):
-		self.writeDatagram(data, self.ha, self.port)
+		if self.isValid():
+			sent = self.write(data)
+			if sent == -1:
+				print 'Error code ', self.error()
 
 class ControlGw(UdpClient):
-	command_id = {
-		'Ping': 1 }
-	response_id = {
-		'Pong': 1
-	}
+	command_id = settings.ControlGw.command_id
+	response_id = settings.ControlGw.response_id
 
 	def __init__(self):
 		super(ControlGw, self).__init__()
 
 	def sendCommand(self, command_id, data):
-		self.sendData(chr(command_id) + data)
+		msg = struct.pack('B', command_id)
+		msg += data
+		self.sendData(msg)
 
 class StatePublisher(UdpClient):
 	def __init__(self):
@@ -50,7 +52,8 @@ class StatePublisher(UdpClient):
 			data += sub + '\n'
 		# remove trailing \n
 		data = data[:-1]
-		self.sendData(data)
+		if len(data) > 0:
+			self.sendData(data)
 
 class ConnectionManager(QtCore.QObject):
 	def __init__(self):
@@ -74,11 +77,13 @@ class ConnectionManager(QtCore.QObject):
 		self.progress.setValue(0)
 
 		self.control_sock = ControlGw()
-		self.control_sock.setDestination('psu-avt.dyndns.org', 8091)
-		self.control_sock.sendCommand(ControlGw.command_id['Ping'], 'Connecting')
+		self.control_sock.setDestination(host, 8091)
+		self.control_sock.connected.connect(self.handle_cgw_connected)
+		self.control_sock.readyRead.connect(self.got_controlgw_data)
 
 		self.state_sock = StatePublisher()
-		self.state_sock.setDestination('psu-avt.dyndns.org', 8092)
+		self.state_sock.setDestination(host, 8092)
+
 		# We dont have a verify state connection method
 		self.progress.setValue(1 + self.progress.value())
 		self.handle_progress_updated()
@@ -97,13 +102,17 @@ class ConnectionManager(QtCore.QObject):
 		except KeyError:
 			pass
 
+	def handle_cgw_connected(self):
+		self.control_sock.sendCommand(ControlGw.command_id['Ping'], 'Connecting')
+
 	def handle_progress_updated(self):
 		if self.progress.value() == self.progress.maximum():
 			del self.progress
 			self.is_connected = True
 
 	def handle_cgw_pong(self, datagram, host, port):
-		if datagram[1:] == 'Connecting' and not self.connected():
+		if datagram[1:] == 'Connecting':
+			print 'Got pong from command gw, successful connection.'
 			self.progress.setValue(self.progress.value()+1)
 			self.handle_progress_updated()
 
