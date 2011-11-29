@@ -137,3 +137,14 @@ class ConnectionManager(QtCore.QObject):
 			latency = time.time() - timeval
 			print 'latency is %f' % latency
 
+	def try_command(self, command_name, data):
+		if not self.connected():
+			return
+
+		try:
+			cmd_id = ControlGw.command_id[command_name]
+		except KeyError:
+			return
+
+		self.control_sock.sendCommand(command_id, data)
+

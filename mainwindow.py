@@ -41,11 +41,13 @@ class MainWindow(QtGui.QMainWindow):
 		quadcopterOnAction = QtGui.QAction('Turn On', self)
 		quadcopterOnAction.setStatusTip('Turn on the Quadcopter')
 		quadcopterOnAction.setEnabled(False)
+		quadcopterOnAction.triggered.connect(self.on_turn_on)
 		self.quadcopterOnAction = quadcopterOnAction
 
 		quadcopterOffAction = QtGui.QAction('Turn Off', self)
 		quadcopterOffAction.setStatusTip('Turn off the Quadcopter')
 		quadcopterOffAction.setEnabled(False)
+		quadcopterOffAction.triggered.connect(self.on_turn_off)
 		self.quadcopterOffAction = quadcopterOffAction
 
 		showGainsAction = QtGui.QAction('Show Gains', self)
@@ -131,3 +133,10 @@ class MainWindow(QtGui.QMainWindow):
 	def on_connect(self):
 		self.statusBar().showMessage("Connected.")
 		self.connectAction.setEnabled(False)
+
+	def on_turn_off(self):
+		self.conn_mgr.try_command('Off')
+
+	def on_turn_on(self):
+		self.conn_mgr.try_command('On')
+

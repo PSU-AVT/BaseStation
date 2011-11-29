@@ -8,7 +8,9 @@ class ControlGw(object):
 		'SetPitch': 2,
 		'Ping': 3,
 		'SetY': 4,
-		'SetYaw': 5}
+		'SetYaw': 5,
+		'Off': 6,
+		'On': 7}
 
 	response_id = {
 		'Pong': 1
