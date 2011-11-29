@@ -77,6 +77,8 @@ class ConnectionManager(QtCore.QObject):
 		return self.is_connected
 
 	def do_connect(self, host):
+		if self.connected():
+			self.do_disconnect()
 		self.progress = QtGui.QProgressDialog("Connecting to quadcopter...", "Cancel", 0, 2)
 		self.progress.canceled.connect(self.do_disconnect)
 		self.progress.setVisible(True)
