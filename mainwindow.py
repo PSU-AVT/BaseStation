@@ -103,7 +103,10 @@ class MainWindow(QtGui.QMainWindow):
 		rightVLayout.addWidget(motorsGroupBox)
 		rightVLayout.addStretch()
 
+		self.gainswidget = gainswidget.GainsWidget()
+
 		mainHLayout = QtGui.QHBoxLayout()
+		mainHLayout.addWidget(self.gainswidget)
 		mainHLayout.addLayout(attenLayout)
 		mainHLayout.addLayout(rightVLayout)
 
@@ -114,8 +117,6 @@ class MainWindow(QtGui.QMainWindow):
 
 		self.on_disconnect()
 
-		self.gainswidget = gainswidget.GainsWidget()
-		self.gainswidget.setVisible(True)
 
 	def show_connect(self):
 		cd = connectdialog.ConnectDialog()
