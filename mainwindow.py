@@ -14,6 +14,11 @@ class MainWindow(QtGui.QMainWindow):
 		self.setupActions()
 		self.initUi()
 
+		self.state_tag_handlers = {
+			'LlfcStateMotors': self.state_motors,
+			'LlfcStateAttenuation': self.state_attenuation,
+		}
+
 	def setupActions(self):
 		openJoysickAction = QtGui.QAction('Open Joystick', self)
 		openJoysickAction.setStatusTip('Open joystick to use for controlling quadcopter')
@@ -64,6 +69,9 @@ class MainWindow(QtGui.QMainWindow):
 		quadcopterMenu.addAction(quadcopterOnAction)
 		quadcopterMenu.addAction(quadcopterOffAction)
 
+		self.conn_mgr.validConnection.connect(self.on_connect)
+		self.conn_mgr.disconnected.connect(self.on_disconnect)
+
 	def initUi(self):
 		self.setWindowTitle('Quadcopter BaseStation')
 
@@ -111,7 +119,6 @@ class MainWindow(QtGui.QMainWindow):
 
 		self.on_disconnect()
 
-
 	def show_connect(self):
 		cd = connectdialog.ConnectDialog()
 		if cd.exec_():
@@ -123,15 +130,27 @@ class MainWindow(QtGui.QMainWindow):
 
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")
+		self.connectAction.setEnabled(True)
 		self.disconnectAction.setEnabled(False)
+		self.quadcopterOffAction.setEnabled(True)
+		self.quadcopterOnAction.setEnabled(True)
 
 	def on_connect(self):
 		self.statusBar().showMessage("Connected.")
 		self.connectAction.setEnabled(False)
+		self.disconnectAction.setEnabled(True)
+		self.quadcopterOffAction.setEnabled(True)
+		self.quadcopterOnAction.setEnabled(True)
 
 	def on_turn_off(self):
 		self.conn_mgr.try_command('Off')
 
 	def on_turn_on(self):
 		self.conn_mgr.try_command('On')
+
+	def state_attenuation(self, data):
+		print 'Got attenuation'
+
+	def state_motors(self, data):
+		print 'Got motors'
 
