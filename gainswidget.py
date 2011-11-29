@@ -13,10 +13,18 @@ class StateWidget(QtGui.QWidget):
 class CompleteStateWidget(QtGui.QWidget):
 	def __init__(self):
 		super(CompleteStateWidget, self).__init__()
-		mainHLayout = QtGui.QHBoxLayout()
-		for name in ('Roll', 'Pitch', 'Yaw', 'X', 'Y', 'Z'):
-			mainHLayout.addWidget(StateWidget(name))
-		self.setLayout(mainHLayout)
+		top_h_layout = QtGui.QHBoxLayout()
+		for name in ('Roll', 'Pitch', 'Yaw'):
+			top_h_layout.addWidget(StateWidget(name))
+
+		bottom_h_layout = QtGui.QHBoxLayout()
+		for name in ('X', 'Y', 'Z'):
+			bottom_h_layout.addWidget(StateWidget(name))
+
+		v_layout = QtGui.QVBoxLayout()
+		v_layout.addLayout(top_h_layout)
+		v_layout.addLayout(bottom_h_layout)
+		self.setLayout(v_layout)
 
 class GainsWidget(QtGui.QWidget):
 	def __init__(self):

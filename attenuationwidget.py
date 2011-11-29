@@ -7,7 +7,9 @@ class SingleAxisWidget(QtGui.QWidget):
 		super(SingleAxisWidget, self).__init__()
 		v_layout = QtGui.QVBoxLayout()
 		v_layout.addWidget(QtGui.QLabel(label))
+		v_layout.addStretch()
 		v_layout.addWidget(dial)
+		v_layout.addStretch()
 		self.setLayout(v_layout)
 
 class AttenuationWidget(QtGui.QWidget):
@@ -22,13 +24,25 @@ class AttenuationWidget(QtGui.QWidget):
 		self.roll_dial = angledial.AngleDial()
 		self.pitch_dial = angledial.AngleDial()
 		self.yaw_dial = angledial.AngleDial()
+		self.x_spinbox = QtGui.QSpinBox()
+		self.y_spinbox = QtGui.QSpinBox()
+		self.z_spinbox = QtGui.QSpinBox()
 
-		h_layout = QtGui.QHBoxLayout()
-		h_layout.addWidget(SingleAxisWidget(self.roll_dial, "Roll"))
-		h_layout.addWidget(SingleAxisWidget(self.pitch_dial, "Pitch"))
-		h_layout.addWidget(SingleAxisWidget(self.yaw_dial, "Yaw"))
+		top_h_layout = QtGui.QHBoxLayout()
+		top_h_layout.addWidget(SingleAxisWidget(self.roll_dial, "Roll"))
+		top_h_layout.addWidget(SingleAxisWidget(self.pitch_dial, "Pitch"))
+		top_h_layout.addWidget(SingleAxisWidget(self.yaw_dial, "Yaw"))
 
-		self.setLayout(h_layout)
+		bottom_h_layout = QtGui.QHBoxLayout()
+		bottom_h_layout.addWidget(SingleAxisWidget(self.x_spinbox, "X"))
+		bottom_h_layout.addWidget(SingleAxisWidget(self.y_spinbox, "Y"))
+		bottom_h_layout.addWidget(SingleAxisWidget(self.z_spinbox, "Z"))
+
+		v_layout = QtGui.QVBoxLayout()
+		v_layout.addLayout(top_h_layout)
+		v_layout.addLayout(bottom_h_layout)
+
+		self.setLayout(v_layout)
 
 	def setRoll(self, value):
 		self.roll_dial.setAngle(value)
