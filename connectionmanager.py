@@ -66,11 +66,17 @@ class ConnectionManager(QtCore.QObject):
 		self.timeout_secs = 10
 		self.is_connected = False
 
+		# setup ping timer
+		self.ping_timer = QtCore.QTimer(self)
+		self.ping_timer.setInterval(1000)
+		self.ping_timer.setSingleShot(False)
+		self.ping_timer.timeout.connect(self.do_ping)
+		self.ping_timer.start()
+
 	def connected(self):
 		return self.is_connected
 
 	def do_connect(self, host):
-		self.is_connected = True
 		self.progress = QtGui.QProgressDialog("Connecting to quadcopter...", "Cancel", 0, 2)
 		self.progress.canceled.connect(self.do_disconnect)
 		self.progress.setVisible(True)
@@ -89,11 +95,19 @@ class ConnectionManager(QtCore.QObject):
 		self.handle_progress_updated()
 
 	def do_disconnect(self):
-		if not self.connected():
-			return
-		del self.control_sock
-		del self.state_sock
+		try:
+			del self.control_sock
+		except AttributeError:
+			pass
+		try:
+			del self.state_sock
+		except AttributeError:
+			pass
 		self.is_connected = False
+
+	def do_ping(self):
+		if self.connected():
+			self.control_sock.sendCommand(ControlGw.command_id['Ping'], struct.pack('d', time.time()*100))
 
 	def got_controlgw_data(self):
 		datagram, host, port = self.control_sock.readDatagram(4096)
@@ -108,11 +122,16 @@ class ConnectionManager(QtCore.QObject):
 	def handle_progress_updated(self):
 		if self.progress.value() == self.progress.maximum():
 			del self.progress
-			self.is_connected = True
 
 	def handle_cgw_pong(self, datagram, host, port):
-		if datagram[1:] == 'Connecting':
+		data = datagram[1:]
+		if data == 'Connecting' and not self.connected():
 			print 'Got pong from command gw, successful connection.'
 			self.progress.setValue(self.progress.value()+1)
 			self.handle_progress_updated()
+			self.is_connected = True
+		else:
+			timeval = struct.unpack('d', data)[0] / 100.0
+			latency = time.time() - timeval
+			print 'latency is %f' % latency
 
