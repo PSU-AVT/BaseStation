@@ -50,9 +50,6 @@ class MainWindow(QtGui.QMainWindow):
 		quadcopterOffAction.triggered.connect(self.on_turn_off)
 		self.quadcopterOffAction = quadcopterOffAction
 
-		showGainsAction = QtGui.QAction('Show Gains', self)
-		showGainsAction.setStatusTip('Show the control gains window')
-		
 		menubar = self.menuBar()
 		fileMenu = menubar.addMenu("&File")
 		fileMenu.addAction(openJoysickAction)
@@ -66,9 +63,6 @@ class MainWindow(QtGui.QMainWindow):
 		quadcopterMenu = menubar.addMenu('Quadcopter')
 		quadcopterMenu.addAction(quadcopterOnAction)
 		quadcopterMenu.addAction(quadcopterOffAction)
-
-		viewMenu = menubar.addMenu('&View')
-		viewMenu.addAction(showGainsAction)
 
 	def initUi(self):
 		self.setWindowTitle('Quadcopter BaseStation')
