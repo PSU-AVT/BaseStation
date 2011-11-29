@@ -54,6 +54,6 @@ class AttenuationWidget(QtGui.QWidget):
 		self.yaw_dial.setAngle(value)
 
 	def setInputAllowed(self, value):
-		for dial in (self.roll_dial, self.pitch_dial, self.yaw_dial):
+		for dial in (self.roll_dial, self.pitch_dial, self.yaw_dial, self.x_spinbox, self.y_spinbox, self.z_spinbox):
 			dial.setEnabled(value)
 
