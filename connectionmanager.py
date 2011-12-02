@@ -17,7 +17,7 @@ class UdpClient(QtNetwork.QUdpSocket):
 		if self.isValid():
 			sent = self.write(data)
 			if sent == -1:
-				print 'Error code ', self.error()
+				pass
 
 class ControlGw(UdpClient):
 	command_id = settings.ControlGw.command_id
@@ -28,7 +28,6 @@ class ControlGw(UdpClient):
 
 	def __init__(self):
 		super(ControlGw, self).__init__()
-		self.readyRead.connect(self.handle_read)
 
 		# setup ping timer
 		self.ping_timer = QtCore.QTimer(self)
@@ -38,6 +37,7 @@ class ControlGw(UdpClient):
 		self.ping_timer.start()
 
 		self.connected.connect(self.handle_connected)
+		self.readyRead.connect(self.handle_read)
 
 	def sendCommand(self, command_id, data):
 		msg = struct.pack('B', command_id)
@@ -67,11 +67,16 @@ class StatePublisher(UdpClient):
 	def __init__(self):
 		super(StatePublisher, self).__init__()
 		self.subscriptions = []
+
+		# setup resub timer
 		self.resub_timer = QtCore.QTimer(self)
 		self.resub_timer.setInterval(500)
 		self.resub_timer.setSingleShot(False)
 		self.resub_timer.timeout.connect(self.resub_timeout)
 		self.resub_timer.start()
+
+		self.readyRead.connect(self.handle_read)
+		self.prefix_handlers = []
 
 	def subscribeTo(prefix, persistent=True):
 		if persistent:
@@ -79,6 +84,8 @@ class StatePublisher(UdpClient):
 		self.sendData(prefix)
 
 	def resub_timeout(self):
+		if not self.isValid():
+			return
 		data = ''
 		for sub in self.subscriptions:
 			data += sub + '\n'
@@ -86,6 +93,16 @@ class StatePublisher(UdpClient):
 		data = data[:-1]
 		if len(data) > 0:
 			self.sendData(data)
+
+	def addHandler(self, prefix, handler):
+		self.prefix_handlers.append((prefix, handler))
+
+	def handle_read(self):
+		datagram, host, port = self.readDatagram(4096)
+		prefix = datagram.split(':')[0]
+		for test_prefix, handler in self.prefix_handlers:
+			if prefix.startsWith(test_prefix):
+				handler(datagram)
 
 class ConnectionManager(QtCore.QObject):
 
@@ -97,6 +114,8 @@ class ConnectionManager(QtCore.QObject):
 
 		self.timeout_secs = 10
 		self.is_connected = False
+		self.state_sock = StatePublisher()
+		self.control_sock = ControlGw()
 
 	def connected(self):
 		return self.is_connected
@@ -109,25 +128,17 @@ class ConnectionManager(QtCore.QObject):
 		self.progress.setVisible(True)
 		self.progress.setValue(0)
 
-		self.control_sock = ControlGw()
 		self.control_sock.setDestination(host, 8091)
 		self.control_sock.connectionActive.connect(self.handle_cgw_active)
 
-		self.state_sock = StatePublisher()
 		self.state_sock.setDestination(host, 8092)
 
 		# We dont have a verify state connection method
 		self.progress.setValue(1 + self.progress.value())
 
 	def do_disconnect(self):
-		try:
-			del self.control_sock
-		except AttributeError:
-			pass
-		try:
-			del self.state_sock
-		except AttributeError:
-			pass
+		self.control_sock.disconnectFromHost()
+		self.state_sock.disconnectFromHost()
 		self.is_connected = False
 		self.disconnected.emit()
 
@@ -144,6 +155,8 @@ class ConnectionManager(QtCore.QObject):
 		self.control_sock.sendCommand(cmd_id, data)
 
 	def handle_cgw_active(self):
+		if self.progress.value() != 1:
+			return
 		self.progress.setValue(self.progress.value() + 1)
 		self.is_connected = True
 		self.validConnection.emit()

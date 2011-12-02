@@ -173,3 +173,7 @@ class MainWindow(QtGui.QMainWindow):
 	def setpoint_changed(self):
 		self.conn_mgr.try_command('SetSetpoint', self.atenn_setpoint_widget.toBinaryStateString())
 
+	def got_motor_state(self, message):
+		motor_vals = struct.unpack('fff', message.split(':')[2][1:])
+		print 'Got motor vals ', motor_vals
+
