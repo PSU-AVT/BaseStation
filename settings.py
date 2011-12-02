@@ -13,7 +13,9 @@ class ControlGw(object):
 		'On': 7,
 		'SetPGains': 8,
 		'SetIGains': 9,
-		'SetDGains': 10}
+		'SetDGains': 10,
+		'SetSetpoint': 11,
+		}
 
 	response_id = {
 		'Pong': 1

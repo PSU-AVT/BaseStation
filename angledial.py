@@ -14,3 +14,6 @@ class AngleDial(QtGui.QDial):
 			angle = 3
 		self.setSliderPosition(int(angle*1000))
 
+	def toRadians(self):
+		return self.value() * (6.283 / 3600)
+

@@ -1,4 +1,6 @@
-from PyQt4 import QtGui
+import struct
+
+from PyQt4 import QtCore, QtGui
 
 import angledial
 
@@ -13,6 +15,8 @@ class SingleAxisWidget(QtGui.QWidget):
 		self.setLayout(v_layout)
 
 class AttenuationWidget(QtGui.QWidget):
+	changed = QtCore.pyqtSignal()
+
 	def __init__(self):
 		super(AttenuationWidget, self).__init__()
 		self.roll = 0.0
@@ -27,6 +31,10 @@ class AttenuationWidget(QtGui.QWidget):
 		self.x_spinbox = QtGui.QSpinBox()
 		self.y_spinbox = QtGui.QSpinBox()
 		self.z_spinbox = QtGui.QSpinBox()
+
+		self.roll_dial.valueChanged.connect(self.onValChanged)
+		self.pitch_dial.valueChanged.connect(self.onValChanged)
+		self.yaw_dial.valueChanged.connect(self.onValChanged)
 
 		top_h_layout = QtGui.QHBoxLayout()
 		top_h_layout.addWidget(SingleAxisWidget(self.roll_dial, "Roll"))
@@ -46,14 +54,24 @@ class AttenuationWidget(QtGui.QWidget):
 
 	def setRoll(self, value):
 		self.roll_dial.setAngle(value)
+		self.changed.emit()
 
 	def setPitch(self, value):
 		self.pitch_dial.setAngle(value)
+		self.changed.emit()
 
 	def setYaw(self, value):
 		self.yaw_dial.setAngle(value)
+		self.changed.emit()
 
 	def setInputAllowed(self, value):
 		for dial in (self.roll_dial, self.pitch_dial, self.yaw_dial, self.x_spinbox, self.y_spinbox, self.z_spinbox):
 			dial.setEnabled(value)
+
+	def toBinaryStateString(self):
+		vals = [ x.toRadians() for x in (self.roll_dial, self.pitch_dial, self.yaw_dial) ] + [ x.value() for x in (self.x_spinbox, self.y_spinbox, self.z_spinbox) ]
+		return struct.pack('ffffff', *vals)
+		
+	def onValChanged(self, val):
+		self.changed.emit()
 

@@ -80,6 +80,7 @@ class MainWindow(QtGui.QMainWindow):
 
 		self.atenn_setpoint_widget = attenuationwidget.AttenuationWidget()
 		self.atenn_setpoint_widget.setInputAllowed(True)
+		self.atenn_setpoint_widget.changed.connect(self.setpoint_changed)
 
 		stateGroupBox = QtGui.QGroupBox("State")
 		sgbLayout = QtGui.QVBoxLayout()
@@ -168,4 +169,7 @@ class MainWindow(QtGui.QMainWindow):
 
 	def d_gains_changed(self):
 		self.conn_mgr.try_command('SetDGains', self.gainswidget.d_gains.toBinaryStateString())
+
+	def setpoint_changed(self):
+		self.conn_mgr.try_command('SetSetpoint', self.atenn_setpoint_widget.toBinaryStateString())
 
