@@ -146,10 +146,10 @@ class MainWindow(QtGui.QMainWindow):
 		self.d_gains_changed()
 
 	def on_turn_off(self):
-		self.conn_mgr.try_command('Off')
+		self.conn_mgr.try_command('Off', '')
 
 	def on_turn_on(self):
-		self.conn_mgr.try_command('On')
+		self.conn_mgr.try_command('On', '')
 
 	def p_gains_changed(self):
 		self.conn_mgr.try_command('SetPGains', self.gainswidget.p_gains.toBinaryStateString())
