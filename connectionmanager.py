@@ -141,8 +141,9 @@ class ConnectionManager(QtCore.QObject):
 		except KeyError:
 			return
 
-		self.control_sock.sendCommand(command_id, data)
+		self.control_sock.sendCommand(cmd_id, data)
 
 	def handle_cgw_active(self):
 		self.progress.setValue(self.progress.value() + 1)
+		self.is_connected = True
 
