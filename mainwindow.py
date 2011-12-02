@@ -144,6 +144,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.disconnectAction.setEnabled(True)
 		self.quadcopterOffAction.setEnabled(True)
 		self.quadcopterOnAction.setEnabled(True)
+		self.p_gains_changed()
+		self.i_gains_changed()
+		self.d_gains_changed()
 
 	def on_turn_off(self):
 		self.conn_mgr.try_command('Off')

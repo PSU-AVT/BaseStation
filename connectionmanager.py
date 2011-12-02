@@ -146,4 +146,5 @@ class ConnectionManager(QtCore.QObject):
 	def handle_cgw_active(self):
 		self.progress.setValue(self.progress.value() + 1)
 		self.is_connected = True
+		self.validConnection.emit()
 
