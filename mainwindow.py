@@ -14,11 +14,6 @@ class MainWindow(QtGui.QMainWindow):
 		self.setupActions()
 		self.initUi()
 
-		self.state_tag_handlers = {
-			'LlfcStateMotors': self.state_motors,
-			'LlfcStateAttenuation': self.state_attenuation,
-		}
-
 	def setupActions(self):
 		openJoysickAction = QtGui.QAction('Open Joystick', self)
 		openJoysickAction.setStatusTip('Open joystick to use for controlling quadcopter')
@@ -71,6 +66,7 @@ class MainWindow(QtGui.QMainWindow):
 
 		self.conn_mgr.validConnection.connect(self.on_connect)
 		self.conn_mgr.disconnected.connect(self.on_disconnect)
+		self.conn_mgr.state_sock.addHandler('LlfcStateMotors', self.got_motor_state)
 
 	def initUi(self):
 		self.setWindowTitle('Quadcopter BaseStation')
@@ -155,12 +151,6 @@ class MainWindow(QtGui.QMainWindow):
 	def on_turn_on(self):
 		self.conn_mgr.try_command('On')
 
-	def state_attenuation(self, data):
-		print 'Got attenuation'
-
-	def state_motors(self, data):
-		print 'Got motors'
-
 	def p_gains_changed(self):
 		self.conn_mgr.try_command('SetPGains', self.gainswidget.p_gains.toBinaryStateString())
 
@@ -174,6 +164,10 @@ class MainWindow(QtGui.QMainWindow):
 		self.conn_mgr.try_command('SetSetpoint', self.atenn_setpoint_widget.toBinaryStateString())
 
 	def got_motor_state(self, message):
-		motor_vals = struct.unpack('fff', message.split(':')[2][1:])
+		motor_vals = struct.unpack('fff', message.split(': ')[1])
 		print 'Got motor vals ', motor_vals
+
+	def got_attenuation(self, message):
+		atten_vals = struct.unpack('ffffff', message.split(': ')[1])
+		print 'Got atten vals ', atten_vals
 
