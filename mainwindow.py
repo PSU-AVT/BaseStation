@@ -106,6 +106,9 @@ class MainWindow(QtGui.QMainWindow):
 		rightVLayout.addStretch()
 
 		self.gainswidget = gainswidget.GainsWidget()
+		self.gainswidget.p_gains.changed.connect(self.p_gains_changed)
+		self.gainswidget.i_gains.changed.connect(self.i_gains_changed)
+		self.gainswidget.d_gains.changed.connect(self.d_gains_changed)
 
 		mainHLayout = QtGui.QHBoxLayout()
 		mainHLayout.addWidget(self.gainswidget)
@@ -153,4 +156,13 @@ class MainWindow(QtGui.QMainWindow):
 
 	def state_motors(self, data):
 		print 'Got motors'
+
+	def p_gains_changed(self):
+		self.conn_mgr.try_command('SetPGains', self.gainswidget.p_gains.toBinaryStateString())
+
+	def i_gains_changed(self):
+		self.conn_mgr.try_command('SetIGains', self.gainswidget.i_gains.toBinaryStateString())
+
+	def d_gains_changed(self):
+		self.conn_mgr.try_command('SetDGains', self.gainswidget.d_gains.toBinaryStateString())
 

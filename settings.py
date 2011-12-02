@@ -10,7 +10,10 @@ class ControlGw(object):
 		'SetY': 4,
 		'SetYaw': 5,
 		'Off': 6,
-		'On': 7}
+		'On': 7,
+		'SetPGains': 8,
+		'SetIGains': 9,
+		'SetDGains': 10}
 
 	response_id = {
 		'Pong': 1

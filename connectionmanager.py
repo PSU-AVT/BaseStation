@@ -23,13 +23,45 @@ class ControlGw(UdpClient):
 	command_id = settings.ControlGw.command_id
 	response_id = settings.ControlGw.response_id
 
+	latencyUpdate = QtCore.pyqtSignal()
+	connectionActive = QtCore.pyqtSignal()
+
 	def __init__(self):
 		super(ControlGw, self).__init__()
+		self.readyRead.connect(self.handle_read)
+
+		# setup ping timer
+		self.ping_timer = QtCore.QTimer(self)
+		self.ping_timer.setInterval(1000)
+		self.ping_timer.setSingleShot(False)
+		self.ping_timer.timeout.connect(self.do_ping)
+		self.ping_timer.start()
+
+		self.connected.connect(self.handle_connected)
 
 	def sendCommand(self, command_id, data):
 		msg = struct.pack('B', command_id)
 		msg += data
 		self.sendData(msg)
+
+	def do_ping(self):
+		if self.isValid():
+			self.sendCommand(self.command_id['Ping'], struct.pack('d', time.time()*100))
+
+	def handle_read(self):
+		datagram, host, port = self.readDatagram(4096)
+		cmd_id = ord(datagram[0])
+		if cmd_id == self.response_id['Pong']:
+			data = datagram[1:]
+			if data == 'Connecting':
+				self.connectionActive.emit()
+			else:
+				timeval = struct.unpack('d', data)[0] / 100.0
+				latency = time.time() - timeval
+				print 'latency is %f' % latency
+
+	def handle_connected(self):
+		self.sendCommand(self.command_id['Ping'], 'Connecting')
 
 class StatePublisher(UdpClient):
 	def __init__(self):
@@ -63,19 +95,8 @@ class ConnectionManager(QtCore.QObject):
 	def __init__(self):
 		super(ConnectionManager, self).__init__()
 
-		self.controlgw_handlers = {
-			ControlGw.response_id['Pong']: self.handle_cgw_pong
-		}
-
 		self.timeout_secs = 10
 		self.is_connected = False
-
-		# setup ping timer
-		self.ping_timer = QtCore.QTimer(self)
-		self.ping_timer.setInterval(1000)
-		self.ping_timer.setSingleShot(False)
-		self.ping_timer.timeout.connect(self.do_ping)
-		self.ping_timer.start()
 
 	def connected(self):
 		return self.is_connected
@@ -90,8 +111,7 @@ class ConnectionManager(QtCore.QObject):
 
 		self.control_sock = ControlGw()
 		self.control_sock.setDestination(host, 8091)
-		self.control_sock.connected.connect(self.handle_cgw_connected)
-		self.control_sock.readyRead.connect(self.got_controlgw_data)
+		self.control_sock.connectionActive.connect(self.handle_cgw_active)
 
 		self.state_sock = StatePublisher()
 		self.state_sock.setDestination(host, 8092)
@@ -111,31 +131,6 @@ class ConnectionManager(QtCore.QObject):
 		self.is_connected = False
 		self.disconnected.emit()
 
-	def do_ping(self):
-		if self.connected():
-			self.control_sock.sendCommand(ControlGw.command_id['Ping'], struct.pack('d', time.time()*100))
-
-	def got_controlgw_data(self):
-		datagram, host, port = self.control_sock.readDatagram(4096)
-		try:
-			self.controlgw_handlers[ord(datagram[0])](datagram, host, port)
-		except KeyError:
-			pass
-
-	def handle_cgw_connected(self):
-		self.control_sock.sendCommand(ControlGw.command_id['Ping'], 'Connecting')
-
-	def handle_cgw_pong(self, datagram, host, port):
-		data = datagram[1:]
-		if data == 'Connecting' and not self.connected():
-			print 'Got pong from command gw, successful connection.'
-			self.progress.setValue(self.progress.value()+1)
-			self.is_connected = True
-			self.validConnection.emit()
-		else:
-			timeval = struct.unpack('d', data)[0] / 100.0
-			latency = time.time() - timeval
-			print 'latency is %f' % latency
 
 	def try_command(self, command_name, data):
 		if not self.connected():
@@ -147,4 +142,7 @@ class ConnectionManager(QtCore.QObject):
 			return
 
 		self.control_sock.sendCommand(command_id, data)
+
+	def handle_cgw_active(self):
+		self.progress.setValue(self.progress.value() + 1)
 
