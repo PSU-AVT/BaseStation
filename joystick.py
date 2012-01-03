@@ -1,27 +1,36 @@
 import os
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 def available_joysticks():
 	ret = []
 	for path in os.listdir('/dev/input'):
-		if path.startswith('js'):
+		if path.startswith(''):
 			ret.append('/dev/input/'+path)
 	return ret
+
+class QJoystick(QtCore.QSocketNotifier):
+	def __init__(self, joystick_file):
+		self.joystick_file = super(QJoystick, self).__init__(joystick_file.fileno(), 0)
+		self.joystick_file = joystick_file
 
 class OpenJoystickDialog(QtGui.QDialog):
 	def __init__(self):
 		super(OpenJoystickDialog, self).__init__()
 		self.setupUi()
 
+	def joystickPath(self):
+		return self.pathComboBox.currentText()
+
 	def setupUi(self):
 		self.pathComboBox = QtGui.QComboBox()
+		self.pathComboBox.activated.connect(self.updateOpenButton)
 
 		rescanJoysticksButton = QtGui.QPushButton("Rescan")
 		rescanJoysticksButton.clicked.connect(self.rescanJoysticks)
 
 		openButton = QtGui.QPushButton("Open")
-		openButton.setEnabled(False)
 		openButton.clicked.connect(self.accept)
+		self.openButton = openButton
 
 		cancelButton = QtGui.QPushButton("Cancel")
 		cancelButton.clicked.connect(self.reject)
@@ -42,9 +51,13 @@ class OpenJoystickDialog(QtGui.QDialog):
 		self.setLayout(mainVBox)
 
 		self.rescanJoysticks()
+		self.updateOpenButton()
 
 	def rescanJoysticks(self):
 		self.pathComboBox.clear()
 		for path in available_joysticks():
 			self.pathComboBox.addItem(path)
+
+	def updateOpenButton(self):
+		self.openButton.setEnabled(self.pathComboBox.currentText().isEmpty() == False)
 

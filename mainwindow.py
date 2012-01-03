@@ -1,3 +1,4 @@
+import struct
 from PyQt4 import QtGui
 
 import attenuationwidget
@@ -126,7 +127,8 @@ class MainWindow(QtGui.QMainWindow):
 
 	def show_open_joystick(self):
 		jd = joystick.OpenJoystickDialog()
-		jd.exec_()
+		if jd.exec_():
+			self.joystick = joystick.QJoystick(open(jd.joystickPath()))		
 
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")
@@ -144,6 +146,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.p_gains_changed()
 		self.i_gains_changed()
 		self.d_gains_changed()
+		self.conn_mgr.try_command('SetStateSendInterval', struct.pack('I', 200))
 
 	def on_turn_off(self):
 		self.conn_mgr.try_command('Off', '')

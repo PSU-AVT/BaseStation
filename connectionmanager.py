@@ -150,7 +150,7 @@ class ConnectionManager(QtCore.QObject):
 		try:
 			cmd_id = ControlGw.command_id[command_name]
 		except KeyError:
-			return
+			print 'Attempting to send invalid command %s ' % command_name
 
 		self.control_sock.sendCommand(cmd_id, data)
 

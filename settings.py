@@ -15,6 +15,8 @@ class ControlGw(object):
 		'SetIGains': 9,
 		'SetDGains': 10,
 		'SetSetpoint': 11,
+		'SetLogLevel': 12,
+		'SetStateSendInterval': 13,
 		}
 
 	response_id = {
