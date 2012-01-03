@@ -14,7 +14,7 @@ class ControlGw(object):
 		'SetPGains': 8,
 		'SetIGains': 9,
 		'SetDGains': 10,
-		'SetSetpoint': 11,
+		'SetAttenSetpoint': 11,
 		'SetLogLevel': 12,
 		'SetStateSendInterval': 13,
 		}
