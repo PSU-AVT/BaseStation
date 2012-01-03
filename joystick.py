@@ -8,10 +8,25 @@ def available_joysticks():
 			ret.append('/dev/input/'+path)
 	return ret
 
+class JoystickEvent(object):
+        def __init__(self, time, value, event_type, number):
+                self.time = time
+                self.value = value
+                self.event_type = event_type
+                self.number = number
+
 class QJoystick(QtCore.QSocketNotifier):
+	# QJoystick.gotEvent(JoystickEvent)
+	gotEvent = QtCore.pyqtSignal()
+
 	def __init__(self, joystick_file):
 		self.joystick_file = super(QJoystick, self).__init__(joystick_file.fileno(), 0)
 		self.joystick_file = joystick_file
+		self.setEnabled(True)
+
+	def onRead(self, sock):
+		ev = JoystickEvent(*struct.unpack("IhBB", self.joystick_file.read()))
+		self.gotEvent.emit(ev)
 
 class OpenJoystickDialog(QtGui.QDialog):
 	def __init__(self):
