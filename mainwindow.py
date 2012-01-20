@@ -69,6 +69,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.conn_mgr.validConnection.connect(self.on_connect)
 		self.conn_mgr.disconnected.connect(self.on_disconnect)
 		self.conn_mgr.state_sock.addHandler('LlfcStateMotors', self.got_motor_state)
+		self.conn_mgr.state_sock.addHandler('LlfcStateInertial', self.got_attenuation)
+		self.conn_mgr.state_sock.subscribeTo('LlfcStateMotors')
+		self.conn_mgr.state_sock.subscribeTo('LlfcStateInertial')
 
 	def initUi(self):
 		self.setWindowTitle('Quadcopter BaseStation')

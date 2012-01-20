@@ -79,8 +79,8 @@ class StatePublisher(UdpClient):
 		self.prefix_handlers = []
 
 	def subscribeTo(self, prefix, persistent=True):
-		if persistent:
-			self.subscriptions.append(prefix)
+		self.subscriptions.append(prefix)
+		print 'sub to %s' % prefix
 		self.resub_timeout()
 
 	def resub_timeout(self):
