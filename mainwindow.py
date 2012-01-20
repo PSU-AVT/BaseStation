@@ -7,6 +7,7 @@ import connectdialog
 import joystick
 import motors
 import gainswidget
+import debugconsole
 
 class MainWindow(QtGui.QMainWindow):
 	def __init__(self):
@@ -71,6 +72,9 @@ class MainWindow(QtGui.QMainWindow):
 
 	def initUi(self):
 		self.setWindowTitle('Quadcopter BaseStation')
+
+		self.debugconsole = debugconsole.DebugConsole(self.conn_mgr.state_sock)
+		self.debugconsole.show()
 
 		self.gyro_widget = attenuationwidget.AttenuationWidget()
 		self.gyro_widget.setInputAllowed(False)

@@ -78,10 +78,10 @@ class StatePublisher(UdpClient):
 		self.readyRead.connect(self.handle_read)
 		self.prefix_handlers = []
 
-	def subscribeTo(prefix, persistent=True):
+	def subscribeTo(self, prefix, persistent=True):
 		if persistent:
 			self.subscriptions.append(prefix)
-		self.sendData(prefix)
+		self.resub_timeout()
 
 	def resub_timeout(self):
 		if not self.isValid():
@@ -101,7 +101,7 @@ class StatePublisher(UdpClient):
 		datagram, host, port = self.readDatagram(4096)
 		prefix = datagram.split(':')[0]
 		for test_prefix, handler in self.prefix_handlers:
-			if prefix.startsWith(test_prefix):
+			if prefix.startswith(test_prefix):
 				handler(datagram)
 
 class ConnectionManager(QtCore.QObject):
@@ -131,7 +131,7 @@ class ConnectionManager(QtCore.QObject):
 		self.control_sock.setDestination(host, 8091)
 		self.control_sock.connectionActive.connect(self.handle_cgw_active)
 
-		self.state_sock.setDestination(host, 8092)
+		self.state_sock.setDestination(host, 8090)
 
 		# We dont have a verify state connection method
 		self.progress.setValue(1 + self.progress.value())
