@@ -179,5 +179,7 @@ class MainWindow(QtGui.QMainWindow):
 
 	def got_attenuation(self, message):
 		atten_vals = struct.unpack('ffffff', message.split(': ')[1])
-		print 'Got atten vals ', atten_vals
+		self.gyro_widget.setRoll(atten_vals[0])
+		self.gyro_widget.setPitch(atten_vals[1])
+		self.gyro_widget.setYaw(atten_vals[2])
 
