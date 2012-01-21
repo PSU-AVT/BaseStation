@@ -100,8 +100,9 @@ class MainWindow(QtGui.QMainWindow):
 		attenLayout.addWidget(stateGroupBox)
 		attenLayout.addWidget(spGroupBox)
 
+		self.motors_widget = motors.MotorsWidget()
 		motorsGbLayout = QtGui.QVBoxLayout()
-		motorsGbLayout.addWidget(motors.MotorsWidget())
+		motorsGbLayout.addWidget(self.motors_widget)
 
 		motorsGroupBox = QtGui.QGroupBox("Motors")
 		motorsGroupBox.setLayout(motorsGbLayout)
@@ -174,8 +175,9 @@ class MainWindow(QtGui.QMainWindow):
 		self.conn_mgr.try_command('SetSetpoint', self.atenn_setpoint_widget.toBinaryStateString())
 
 	def got_motor_state(self, message):
-		motor_vals = struct.unpack('fff', message.split(': ')[1])
-		print 'Got motor vals ', motor_vals
+		motor_vals = struct.unpack('ffff', message.split(': ')[1])
+		for i in range(4):
+			self.motors_widget.setMotorThrottle(i, motor_vals[i])
 
 	def got_attenuation(self, message):
 		atten_vals = struct.unpack('ffffff', message.split(': ')[1])

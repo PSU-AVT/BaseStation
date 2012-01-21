@@ -38,6 +38,7 @@ class MotorsWidget(QtGui.QWidget):
 		hLayout = QtGui.QHBoxLayout()
 		for motor in self.motor_widgets:
 			hLayout.addWidget(motor)
+			motor.setEnabled(False)
 		self.setLayout(hLayout)
 
 	def setMotorThrottle(self, ndx, throttle):
