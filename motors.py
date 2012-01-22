@@ -10,6 +10,7 @@ class MotorWidget(QtGui.QWidget):
 	def setupUi(self):
 		self.slider = QtGui.QSlider(0x0)
 		self.slider.setEnabled(False)
+		self.slider.setRange(0, 100)
 
 		self.throttleLabel = QtGui.QLabel('0 %')
 
