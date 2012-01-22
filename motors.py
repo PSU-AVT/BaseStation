@@ -24,6 +24,7 @@ class MotorWidget(QtGui.QWidget):
 	def setThrottle(self, throttle):
 		self.throttle = throttle
 		self.throttleLabel.setText(str(throttle * 100) + ' %')
+		self.slider.setSliderPosition(int(throttle*100))
 
 class MotorsWidget(QtGui.QWidget):
 	def __init__(self):
