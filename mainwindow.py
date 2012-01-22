@@ -1,5 +1,5 @@
 import struct
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 import attenuationwidget
 import connectionmanager
@@ -8,6 +8,7 @@ import joystick
 import motors
 import gainswidget
 import debugconsole
+import settings
 
 class MainWindow(QtGui.QMainWindow):
 	def __init__(self):
@@ -15,6 +16,13 @@ class MainWindow(QtGui.QMainWindow):
 		self.conn_mgr = connectionmanager.ConnectionManager()
 		self.setupActions()
 		self.initUi()
+		self.local_setpoint = {'Yaw': 0.0, 'Pitch': 0.0, 'Roll': 0.0, 'X': 0.0, 'Y': 0.0, 'Z': 0.0}
+		self.joystick_axis_map = ['Pitch', 'Roll', 'Yaw']
+		self.setpoint_timer = QtCore.QTimer()
+		self.setpoint_timer.setSingleShot(False)
+		self.setpoint_timer.setInterval(40)
+		self.setpoint_timer.timeout.connect(self.update_setpoint)
+		self.setpoint_timer.start()
 
 	def setupActions(self):
 		openJoysickAction = QtGui.QAction('Open Joystick', self)
@@ -70,8 +78,10 @@ class MainWindow(QtGui.QMainWindow):
 		self.conn_mgr.disconnected.connect(self.on_disconnect)
 		self.conn_mgr.state_sock.addHandler('LlfcStateMotors', self.got_motor_state)
 		self.conn_mgr.state_sock.addHandler('LlfcStateInertial', self.got_attenuation)
+		self.conn_mgr.state_sock.addHandler('LlfcStateSetpoint', self.got_setpoint)
 		self.conn_mgr.state_sock.subscribeTo('LlfcStateMotors')
 		self.conn_mgr.state_sock.subscribeTo('LlfcStateInertial')
+		self.conn_mgr.state_sock.subscribeTo('LlfcStateSetpoint')
 
 	def initUi(self):
 		self.setWindowTitle('Quadcopter BaseStation')
@@ -84,7 +94,7 @@ class MainWindow(QtGui.QMainWindow):
 
 		self.atenn_setpoint_widget = attenuationwidget.AttenuationWidget()
 		self.atenn_setpoint_widget.setInputAllowed(True)
-		self.atenn_setpoint_widget.changed.connect(self.setpoint_changed)
+		#self.atenn_setpoint_widget.changed.connect(self.setpoint_changed)
 
 		stateGroupBox = QtGui.QGroupBox("State")
 		sgbLayout = QtGui.QVBoxLayout()
@@ -133,10 +143,21 @@ class MainWindow(QtGui.QMainWindow):
 		if cd.exec_():
 			self.conn_mgr.do_connect(cd.hostname())
 
+	def got_joystick_event(self, event):
+		# update our local setpoint
+		if event.event_type == 2:
+			self.local_setpoint[self.joystick_axis_map[event.number]] = event.value * settings.max_atten
+			print self.local_setpoint
+
+	def update_setpoint(self):
+		cmd_data = struct.pack('ffffff', self.local_setpoint['Roll'], self.local_setpoint['Pitch'], self.local_setpoint['Yaw'], 0, 0, 0)
+		self.conn_mgr.try_command('SetSetpoint', cmd_data)
+
 	def show_open_joystick(self):
 		jd = joystick.OpenJoystickDialog()
 		if jd.exec_():
 			self.joystick = joystick.QJoystick(open(jd.joystickPath()))		
+			self.joystick.gotEvent.connect(self.got_joystick_event)
 
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")
@@ -184,4 +205,10 @@ class MainWindow(QtGui.QMainWindow):
 		self.gyro_widget.setRoll(atten_vals[0])
 		self.gyro_widget.setPitch(atten_vals[1])
 		self.gyro_widget.setYaw(atten_vals[2])
+
+	def got_setpoint(self, message):
+		atten_vals = struct.unpack('ffffff', message.split(': ')[1])
+		self.atenn_setpoint_widget.setRoll(atten_vals[0])
+		self.atenn_setpoint_widget.setPitch(atten_vals[1])
+		self.atenn_setpoint_widget.setYaw(atten_vals[2])
 

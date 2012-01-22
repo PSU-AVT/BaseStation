@@ -17,9 +17,12 @@ class ControlGw(object):
 		'SetAttenSetpoint': 11,
 		'SetLogLevel': 12,
 		'SetStateSendInterval': 13,
+		'SetSetpoint': 14,
 		}
 
 	response_id = {
 		'Pong': 1
 	}
+
+max_atten = 2.5
 

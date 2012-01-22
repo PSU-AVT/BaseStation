@@ -22,7 +22,7 @@ class QJoystick(QtCore.QSocketNotifier):
 	maxvals = {}
 
 	def __init__(self, joystick_file):
-		self.joystick_file = super(QJoystick, self).__init__(joystick_file.fileno(), 0)
+		super(QJoystick, self).__init__(joystick_file.fileno(), 0)
 		self.joystick_file = joystick_file
 		self.setEnabled(True)
 		self.activated.connect(self.onRead)
