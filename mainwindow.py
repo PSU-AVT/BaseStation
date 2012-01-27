@@ -18,11 +18,6 @@ class MainWindow(QtGui.QMainWindow):
 		self.initUi()
 		self.local_setpoint = {'Yaw': 0.0, 'Pitch': 0.0, 'Roll': 0.0, 'X': 0.0, 'Y': 0.0, 'Z': 0.0}
 		self.joystick_axis_map = ['Pitch', 'Roll', 'Yaw']
-		self.setpoint_timer = QtCore.QTimer()
-		self.setpoint_timer.setSingleShot(False)
-		self.setpoint_timer.setInterval(40)
-		self.setpoint_timer.timeout.connect(self.update_setpoint)
-		self.setpoint_timer.start()
 
 	def setupActions(self):
 		openJoysickAction = QtGui.QAction('Open Joystick', self)
@@ -144,19 +139,16 @@ class MainWindow(QtGui.QMainWindow):
 			self.conn_mgr.do_connect(cd.hostname())
 
 	def got_joystick_event(self, event):
-		# update our local setpoint
+		# Send new setpoint for axis events
 		if event.event_type == 2:
 			self.local_setpoint[self.joystick_axis_map[event.number]] = event.value * settings.max_atten
-			print self.local_setpoint
-
-	def update_setpoint(self):
-		cmd_data = struct.pack('ffffff', self.local_setpoint['Roll'], self.local_setpoint['Pitch'], self.local_setpoint['Yaw'], 0, 0, 0)
-		self.conn_mgr.try_command('SetSetpoint', cmd_data)
+			cmd_data = struct.pack('ffffff', self.local_setpoint['Roll'], self.local_setpoint['Pitch'], self.local_setpoint['Yaw'], 0, 0, 0)
+			self.conn_mgr.try_command('SetSetpoint', cmd_data)
 
 	def show_open_joystick(self):
 		jd = joystick.OpenJoystickDialog()
 		if jd.exec_():
-			self.joystick = joystick.QJoystick(open(jd.joystickPath()))		
+			self.joystick = joystick.ThrottledEventJoystick(open(jd.joystickPath()))		
 			self.joystick.gotEvent.connect(self.got_joystick_event)
 
 	def on_disconnect(self):

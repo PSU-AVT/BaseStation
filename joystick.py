@@ -40,6 +40,33 @@ class QJoystick(QtCore.QSocketNotifier):
 		except KeyError:
 			self.maxvals[ev.event_type][ev.number] = ev.value
 
+class ThrottledEventsJoytstick(QJoystick):
+	throttledEvent = QtCore.pyqtSignal(JoystickEvent)
+
+	def __init__(self, joystick_file, max_send_dt=.01):
+		super(ThrottledEventsJoytstick, self).__init__(joystick_file)
+		self.ev_timer = QtCore.QTimer()
+		self.ev_timer.setInterval(int(max_send_dt*1000))
+		self.ev_timer.setSingleShot(False)
+		self.ev_timer.timeout.connect(self.timeout)
+		self.gotEvent.connect(self.got_event)
+
+	def got_event(self, event):
+		if not self.ev_timer.isActive():
+			self.throttledEvent.emit(event)
+			self.last_sent_event = event
+			self.latest_event = event
+			self.ev_timer.start()
+		else:
+			self.latest_event = event
+
+	def timeout(self):
+		if self.latest_event == self.last_sent_event:
+			self.event_type.stop()
+		else:
+			self.throttledEvent.emit(self.latest_event)
+			self.last_sent_event = self.latest_event
+
 class OpenJoystickDialog(QtGui.QDialog):
 	def __init__(self):
 		super(OpenJoystickDialog, self).__init__()
