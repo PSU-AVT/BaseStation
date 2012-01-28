@@ -148,7 +148,7 @@ class MainWindow(QtGui.QMainWindow):
 	def show_open_joystick(self):
 		jd = joystick.OpenJoystickDialog()
 		if jd.exec_():
-			self.joystick = joystick.ThrottledEventJoystick(open(jd.joystickPath()))		
+			self.joystick = joystick.ThrottledEventsJoystick(open(jd.joystickPath()))		
 			self.joystick.gotEvent.connect(self.got_joystick_event)
 
 	def on_disconnect(self):
