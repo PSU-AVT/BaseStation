@@ -149,7 +149,7 @@ class MainWindow(QtGui.QMainWindow):
 		jd = joystick.OpenJoystickDialog()
 		if jd.exec_():
 			self.joystick = joystick.ThrottledEventsJoystick(open(jd.joystickPath()))		
-			self.joystick.gotEvent.connect(self.got_joystick_event)
+			self.joystick.throttledEvent.connect(self.got_joystick_event)
 
 	def on_disconnect(self):
 		self.statusBar().showMessage("Disconnected.")

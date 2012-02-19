@@ -43,7 +43,7 @@ class QJoystick(QtCore.QSocketNotifier):
 class ThrottledEventsJoystick(QJoystick):
 	throttledEvent = QtCore.pyqtSignal(JoystickEvent)
 
-	def __init__(self, joystick_file, max_send_dt=.01):
+	def __init__(self, joystick_file, max_send_dt=0.05):
 		super(ThrottledEventsJoystick, self).__init__(joystick_file)
 		self.ev_timer = QtCore.QTimer()
 		self.ev_timer.setInterval(int(max_send_dt*1000))
@@ -62,6 +62,7 @@ class ThrottledEventsJoystick(QJoystick):
 
 	def timeout(self):
 		if self.latest_event == self.last_sent_event:
+			self.throttledEvent.emit(self.latest_event)
 			self.ev_timer.stop()
 		else:
 			self.throttledEvent.emit(self.latest_event)
