@@ -17,7 +17,7 @@ class MainWindow(QtGui.QMainWindow):
 		self.setupActions()
 		self.initUi()
 		self.local_setpoint = {'Yaw': 0.0, 'Pitch': 0.0, 'Roll': 0.0, 'X': 0.0, 'Y': 0.0, 'Z': 0.0}
-		self.joystick_axis_map = ['Pitch', 'Roll', 'Yaw']
+		self.joystick_axis_map = ['Roll', 'Pitch', 'Z']
 
 	def setupActions(self):
 		openJoysickAction = QtGui.QAction('Open Joystick', self)
@@ -142,7 +142,7 @@ class MainWindow(QtGui.QMainWindow):
 		# Send new setpoint for axis events
 		if event.event_type == 2:
 			self.local_setpoint[self.joystick_axis_map[event.number]] = event.value * settings.max_atten
-			cmd_data = struct.pack('ffffff', self.local_setpoint['Roll'], self.local_setpoint['Pitch'], self.local_setpoint['Yaw'], 0, 0, 0)
+			cmd_data = struct.pack('ffffff', self.local_setpoint['Roll'], self.local_setpoint['Pitch'], 0, 0, 0, self.local_setpoint['Z'])
 			self.conn_mgr.try_command('SetSetpoint', cmd_data)
 
 	def show_open_joystick(self):
