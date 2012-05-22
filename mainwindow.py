@@ -141,7 +141,11 @@ class MainWindow(QtGui.QMainWindow):
 	def got_joystick_event(self, event):
 		# Send new setpoint for axis events
 		if event.event_type == 2:
-			self.local_setpoint[self.joystick_axis_map[event.number]] = event.value * settings.max_atten
+			if event.number == 2:
+				self.local_setpoint['Z'] = -( (event.value * settings.max_atten) - settings.max_atten) / 2
+			else:
+				self.local_setpoint[self.joystick_axis_map[event.number]] = event.value * settings.max_atten
+			print self.local_setpoint
 			cmd_data = struct.pack('ffffff', self.local_setpoint['Roll'], self.local_setpoint['Pitch'], 0, 0, 0, self.local_setpoint['Z'])
 			self.conn_mgr.try_command('SetSetpoint', cmd_data)
 
