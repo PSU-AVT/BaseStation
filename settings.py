@@ -24,5 +24,5 @@ class ControlGw(object):
 		'Pong': 1
 	}
 
-max_atten = 2.5
+max_atten = 1.0
 
