@@ -18,8 +18,8 @@ class ConnectDialog(QtGui.QDialog):
 		connectButton.clicked.connect(self.accept)
 
 		buttonLayout = QtGui.QHBoxLayout()
-		buttonLayout.addWidget(cancelButton)
 		buttonLayout.addWidget(connectButton)
+		buttonLayout.addWidget(cancelButton)
 
 		mainLayout = QtGui.QVBoxLayout()
 		mainLayout.addLayout(hostnameLayout)
