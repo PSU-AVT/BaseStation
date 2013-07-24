@@ -6,6 +6,7 @@ class ConnectDialog(QtGui.QDialog):
 		self.setupUi()
 
 	def setupUi(self):
+		self.setWindowTitle("Connect to Quadcopter")
 		self.hostnameLineEdit = QtGui.QLineEdit()
 
 		hostnameLayout = QtGui.QHBoxLayout()
