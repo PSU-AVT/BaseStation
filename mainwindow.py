@@ -101,8 +101,13 @@ class MainWindow(QtGui.QMainWindow):
 		spLayout.addWidget(self.atenn_setpoint_widget)
 		spGroupBox.setLayout(spLayout)
 
+		attenLayout = QtGui.QVBoxLayout()
+		attenLayout.addWidget(stateGroupBox)
+		attenLayout.addWidget(spGroupBox)
+
+		# On and off button box group
 		onOffBox = QtGui.QGroupBox("ON/OFF")
-		ooLayout = QtGui.QVBoxLayout()
+		ooLayout = QtGui.QHBoxLayout()
 		offButton = QtGui.QPushButton("Off", self)
 		onButton = QtGui.QPushButton("On", self)
 		offButton.pressed.connect(self.on_turn_off)
@@ -110,7 +115,8 @@ class MainWindow(QtGui.QMainWindow):
 		ooLayout.addWidget(offButton)	
 		ooLayout.addWidget(onButton)
 		onOffBox.setLayout(ooLayout)
-	
+		
+		# Open joystick button box group
 		joystickBox = QtGui.QGroupBox("Joystick")
 		ojLayout = QtGui.QHBoxLayout()
 		openJoystickButton = QtGui.QPushButton('Open Joystick', self)
@@ -118,6 +124,7 @@ class MainWindow(QtGui.QMainWindow):
 		ojLayout.addWidget(openJoystickButton)
 		joystickBox.setLayout(ojLayout)
 
+		# Connect and Disconnect button box group
 		connectQuadBox = QtGui.QGroupBox("Connect To Quadcopter")
 		cqLayout = QtGui.QHBoxLayout()
 		connectToQuadcopterButton = QtGui.QPushButton('Connect', self)
@@ -128,12 +135,11 @@ class MainWindow(QtGui.QMainWindow):
 		cqLayout.addWidget(disconnectFromQuadcopterButton)
 		connectQuadBox.setLayout(cqLayout)
 
-		attenLayout = QtGui.QVBoxLayout()
-		attenLayout.addWidget(onOffBox)
-		attenLayout.addWidget(connectQuadBox)
-		attenLayout.addWidget(joystickBox)
-		attenLayout.addWidget(stateGroupBox)
-		attenLayout.addWidget(spGroupBox)
+		# Button layout
+		buttonLayout = QtGui.QHBoxLayout()
+		buttonLayout.addWidget(onOffBox)
+		buttonLayout.addWidget(connectQuadBox)
+		buttonLayout.addWidget(joystickBox)
 
 		self.motors_widget = motors.MotorsWidget()
 		motorsGbLayout = QtGui.QVBoxLayout()
@@ -151,10 +157,16 @@ class MainWindow(QtGui.QMainWindow):
 		self.gainswidget.i_gains.changed.connect(self.i_gains_changed)
 		self.gainswidget.d_gains.changed.connect(self.d_gains_changed)
 
-		mainHLayout = QtGui.QHBoxLayout()
-		mainHLayout.addWidget(self.gainswidget)
-		mainHLayout.addLayout(attenLayout)
-		mainHLayout.addLayout(rightVLayout)
+		# This layout goes under the button layout
+		bottomLayout = QtGui.QHBoxLayout()
+		bottomLayout.addWidget(self.gainswidget)
+		bottomLayout.addLayout(attenLayout)
+		bottomLayout.addLayout(rightVLayout)
+
+		# Main layout
+		mainHLayout = QtGui.QVBoxLayout()
+		mainHLayout.addLayout(buttonLayout)
+		mainHLayout.addLayout(bottomLayout)
 
 		mainWidget = QtGui.QWidget()
 		mainWidget.setLayout(mainHLayout)
