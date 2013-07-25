@@ -112,8 +112,8 @@ class MainWindow(QtGui.QMainWindow):
 		onButton = QtGui.QPushButton("On", self)
 		offButton.pressed.connect(self.on_turn_off)
 		onButton.pressed.connect(self.on_turn_on)
-		ooLayout.addWidget(offButton)	
 		ooLayout.addWidget(onButton)
+		ooLayout.addWidget(offButton)	
 		onOffBox.setLayout(ooLayout)
 		
 		# Open joystick button box group
