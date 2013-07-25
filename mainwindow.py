@@ -1,5 +1,5 @@
 import struct
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtGui, QtCore 
 
 import attenuationwidget
 import connectionmanager
@@ -101,7 +101,21 @@ class MainWindow(QtGui.QMainWindow):
 		spLayout.addWidget(self.atenn_setpoint_widget)
 		spGroupBox.setLayout(spLayout)
 
+		onOffBox = QtGui.QGroupBox("ON/OFF")
+		ooLayout = QtGui.QVBoxLayout()
+		offButton = QtGui.QPushButton("Off", self)
+		onButton = QtGui.QPushButton("On", self)
+		offButton.pressed.connect(self.on_turn_off)
+		onButton.pressed.connect(self.on_turn_on)
+		ooLayout.addWidget(offButton)	
+		ooLayout.addWidget(onButton)
+		onOffBox.setLayout(ooLayout)
+		
+		
+		
+
 		attenLayout = QtGui.QVBoxLayout()
+		attenLayout.addWidget(onOffBox)
 		attenLayout.addWidget(stateGroupBox)
 		attenLayout.addWidget(spGroupBox)
 
