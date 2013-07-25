@@ -110,12 +110,17 @@ class MainWindow(QtGui.QMainWindow):
 		ooLayout.addWidget(offButton)	
 		ooLayout.addWidget(onButton)
 		onOffBox.setLayout(ooLayout)
-		
-		
-		
+	
+		joystickBox = QtGui.QGroupBox("Joystick")
+		ojLayout = QtGui.QHBoxLayout()
+		openJoystickButton = QtGui.QPushButton('Open Joystick', self)
+		openJoystickButton.pressed.connect(self.show_open_joystick)
+		ojLayout.addWidget(openJoystickButton)
+		joystickBox.setLayout(ojLayout)
 
 		attenLayout = QtGui.QVBoxLayout()
 		attenLayout.addWidget(onOffBox)
+		attenLayout.addWidget(joystickBox)
 		attenLayout.addWidget(stateGroupBox)
 		attenLayout.addWidget(spGroupBox)
 
